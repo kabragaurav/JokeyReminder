@@ -1,0 +1,25 @@
+{
+  "name": "jokeyreminder-bot",
+  "version": "1.0.0",
+  "description": "Reminder bot for Slack that tells jokes!",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Gaurav",
+    "Kabra",
+    "Reminder",
+    "Joke",
+    "JokeyReminder",
+    "Bot",
+    "Slack"
+  ],
+  "author": "Gaurav Kabra",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "slackbots": "^1.2.0"
+  }
+}
