@@ -1,21 +1,29 @@
 const SlackBot = require('slackbots')
 const axios = require('axios')
-var setIntervalTime = 3300000;      // 55 min in ms
+var setIntervalTime = 3300000;     // 55 min in ms
+var channelToPost = 'test-integration'
 const bot = new SlackBot({
-    token: 'xoxb-1280586292499-2386853503015-uSbeK2Tc5l34SqXNVHZaPhH3',
-    name: 'jokeyreminder'
+    token: 'xoxb-1280586292499-2406328397330-agLuXxuPoMIE0zyQjBEpsk2G',
+    name: 'thisisabot'
 })
 
 bot.on('start', () => {
-    postToChannel(':cat', 'JokeyReminder has started!');
+    postToChannel(':tada', `
+        Successfully started the app!
+        Commands:
+            Type words like quote, motivate, inspire etc to get an inspiring quote immediately.
+                E.g. give me a motivational quote!
+            Type time in minutes after which you want to be notified, followed by ' set time' or ' set reminder'.
+            Default timer is every 55 min.
+                E.g. 5 set time will set next reminders at 5 min intervals
+    `);
 })
 
 var reminder = setInterval(reminderFunction, setIntervalTime);
 
 function reminderFunction() {
-        postToChannel(':orange_heart:','Time to get up!');
-        var funcs = [tellYoMommaJoke, tellChuckNorrisJoke, getInspiration];
-        funcs[Math.floor(Math.random() * funcs.length)]();
+        postToChannel(':basketball:','Time to get up!');
+        getInspiration();
 }
 
 bot.on('error', (err) => {
@@ -31,36 +39,23 @@ bot.on('message', (data) => {
 
 
 function handleMessage(text) {
-    if(text.includes('yomomma')) {
-        tellYoMommaJoke();
-    } else if(text.includes('chucknorris')) {
-        tellChuckNorrisJoke();
-    } else if(text.includes('inspiration') || text.includes('motivate') || text.includes('motivation')) {
+    if(text.includes('inspire') || text.includes('inspiration') || text.includes('motivate') || text.includes('motivation') || text.includes('quote')) {
         getInspiration();
-    } else if(text.includes('set time')) {
+    } else if(text.includes('set time') || text.includes('set reminder')) {
         adjustSetIntervalTiming(text);
     }
 }
 
 function adjustSetIntervalTiming(text) {
     clearInterval(reminder);
-    setIntervalTime = parseInt(text.substring(text.lastIndexOf(' ') + 1, text.length)) * 60 * 1000;
-    setInterval(reminderFunction, setIntervalTime);
+    console.log('Text is ' + text);
+    let [botTag, newTimer, ...doesNotMatter] = text.split(" ");
+    newTimer = parseFloat(newTimer);
+    console.log('New time ' + newTimer);
+    setIntervalTime = newTimer * 60 * 1000;
+    console.log('Setted time to ' + setIntervalTime);
+    reminder = setInterval(reminderFunction, setIntervalTime);
     postToChannel(':OK:', 'Successfully set the reminder');
-}
-
-function tellYoMommaJoke() {
-    axios.get('https://api.yomomma.info/')
-    .then(res => {
-        postToChannel(':laughing:', res.data.joke);
-    });
-}
-
-function tellChuckNorrisJoke() {
-    axios.get('http://api.icndb.com/jokes/random')
-    .then(res => {
-        postToChannel(':laughing:', res.data.value.joke);
-    });
 }
 
 function getInspiration() {
@@ -78,7 +73,7 @@ function postToChannel(emoji, messageToChannel) {
         icon_emoji: emoji
     }
     bot.postMessageToChannel(
-        'general',
+        channelToPost,
         messageToChannel,
         params
     )
