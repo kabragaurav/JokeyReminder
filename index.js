@@ -11,11 +11,8 @@ bot.on('start', () => {
     postToChannel(':tada', `
         Successfully started the app!
         Commands:
-            Type words like quote, motivate, inspire etc to get an inspiring quote immediately.
-                E.g. give me a motivational quote!
-            Type time in minutes after which you want to be notified, followed by ' set time' or ' set reminder'.
-            Default timer is every 55 min.
-                E.g. 5 set time will set next reminders at 5 min intervals
+            \`set:time:N\` to get notification after N minutes (Default 55 min)
+            \`stop:notif\` to stop notifications.
     `);
 })
 
@@ -39,23 +36,28 @@ bot.on('message', (data) => {
 
 
 function handleMessage(text) {
-    if(text.includes('inspire') || text.includes('inspiration') || text.includes('motivate') || text.includes('motivation') || text.includes('quote')) {
-        getInspiration();
-    } else if(text.includes('set time') || text.includes('set reminder')) {
+    text = text.substr(text.indexOf(" ") + 1);
+    if(text.startsWith('set:time')) {
         adjustSetIntervalTiming(text);
+    } else if(text === 'stop:notif') {
+        console.log("Stopped timer");
+        clearInterval(reminder);
+        postToChannel(":OK:", "You won't get notifications anymore!");
     }
 }
 
 function adjustSetIntervalTiming(text) {
     clearInterval(reminder);
-    console.log('Text is ' + text);
-    let [botTag, newTimer, ...doesNotMatter] = text.split(" ");
-    newTimer = parseFloat(newTimer);
+    let [set, time, timerVal] = text.split(":");
+    newTimer = parseFloat(timerVal);
+    if(isNaN(newTimer)) {
+        return;
+    }
     console.log('New time ' + newTimer);
     setIntervalTime = newTimer * 60 * 1000;
-    console.log('Setted time to ' + setIntervalTime);
+    console.log('Setted time to ' + setIntervalTime + ' min');
     reminder = setInterval(reminderFunction, setIntervalTime);
-    postToChannel(':OK:', 'Successfully set the reminder');
+    postToChannel(':OK:', 'Successfully set the reminder interval to ' + newTimer + ' min!');
 }
 
 function getInspiration() {
